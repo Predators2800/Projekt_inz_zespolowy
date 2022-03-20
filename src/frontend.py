@@ -46,15 +46,13 @@ toolbar_table_row = dpg.add_table_row(parent=toolbar_table)
 group_u1 = dpg.add_group(horizontal=True, parent=toolbar_table_row)
 group_u2 = dpg.add_group(horizontal=True, parent=toolbar_table_row)
 
-def get_file_list(folder):
+def get_file_list(folder, extensions=[".jpg",".jpeg",".png",".gif",".bmp"]):
     fileList = []
     for dirpath, dirnames, filenames in os.walk(folder):
         for filename in filenames:
             path = pathlib.Path(dirpath + '\\' + filename)
-            print(path.suffix.lower())
-            if path.suffix.lower() in [".jpg",".png",".gif",".bmp"]:
+            if path.suffix.lower() in extensions:
                 fileList.append(path)
-    print(fileList)
     return fileList
 
 def display_file_list(fileList):
@@ -131,7 +129,6 @@ def on_resize():
     WINDOW_WIDTH = dpg.get_viewport_client_width()
     WINDOW_HEIGHT = dpg.get_viewport_client_height()
     dpg.set_item_height(workspace_table, WINDOW_HEIGHT-TOOLBAR_HEIGHT-STATUS_PANEL_HEIGHT-20)
-    print(WINDOW_HEIGHT, WINDOW_WIDTH)
 
 dpg.set_viewport_resize_callback(on_resize)
 
