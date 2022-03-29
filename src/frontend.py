@@ -156,3 +156,37 @@ dpg.setup_dearpygui()
 dpg.show_viewport()
 dpg.start_dearpygui()
 dpg.destroy_context()
+
+
+
+# textureRegistry = dpg.add_texture_registry(show=False)
+# textureList = []
+# for i in range():
+#     img_width, img_height, channels, data = dpg.load_image("resources/images/konie.jpg")
+#     texture = dpg.add_static_texture(img_width, img_height, data, parent=textureRegistry)
+#     textureList.append(texture)
+
+
+# listOfStuff = ["konie-1","konie-2","konie-3","konie-4","konie-5","konie-6","konie-7","konie-8","konie-9","konie-10","konie-11","konie-12","konie-13","konie-14","konie-15","konie-16"]
+# print("len", len(listOfStuff))
+
+# thumbnails_window = dpg.add_window(label="win")
+# dpg.set_primary_window(thumbnails_window, True)
+
+# def add_thumbnails(stuffList, columns, parent=None):
+#     dpg.add_child_window(label="Table of stuff", tag="windowWithTable",parent=parent)
+#     dpg.add_table(tag="tableOfStuff", parent="windowWithTable", header_row=False)
+#     for i in range(columns):
+#         dpg.add_table_column(parent="tableOfStuff")
+#     counter = 0
+#     while counter < len(stuffList):
+#         columnsLeft = columns if counter <= len(stuffList)-columns else len(stuffList) % columns
+#         row = dpg.add_table_row(parent="tableOfStuff")
+#         while columnsLeft > 0:
+#             grupa = dpg.add_group(parent=row)
+#             dpg.add_text(default_value=stuffList[counter], parent=grupa)
+#             dpg.add_image(textureList[0], parent=grupa)
+#             columnsLeft -= 1
+#             counter += 1
+
+# add_thumbnails(listOfStuff, 3, parent=thumbnails_window) 
