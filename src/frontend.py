@@ -2,6 +2,7 @@ import dearpygui.dearpygui as dpg
 import os
 import pathlib
 from tkinter import filedialog
+from tkinter import Tk
 
 """GLOBALS"""
 
@@ -23,7 +24,7 @@ main_window = dpg.add_window(label="okno")
 dpg.set_primary_window(main_window, True)
 
 with dpg.font_registry():
-    default_font = dpg.add_font("./resources/font/fira.ttf", FONT_SIZE)  # ładowanie czcionki z dysku
+    default_font = dpg.add_font("../resources/font/fira.ttf", FONT_SIZE)  # ładowanie czcionki z dysku
 dpg.bind_font(default_font)  # ustawia czcionkę jako default
 dpg.add_font_range(0x0100, 0x017D, parent=default_font)  # dodaje zakres polskich znaków
 
@@ -60,8 +61,11 @@ def display_file_list(fileList):
         dpg.add_text(parent=file_list_window, default_value=path)
 
 def open_folder():
+    root = Tk()
+    root.withdraw()
     CURRENT_FOLDER = filedialog.askdirectory()
     display_file_list(get_file_list(CURRENT_FOLDER))
+
 
 dpg.add_button(label="Otwórz folder", parent=group_u1, height=BUTTON_HEIGHT, callback=open_folder)
 dpg.add_button(label="Pokaż w Eksloratorze", parent=group_u2, height=BUTTON_HEIGHT)
@@ -88,6 +92,22 @@ file_list_window = dpg.add_child_window(parent=workspace_table_row)
 """MIDDLE_PANEL_THUMBNAILS"""
 
 thumbnails_window = dpg.add_child_window(parent=workspace_table_row)
+thumbnails_window_table = dpg.add_table(parent=thumbnails_window,header_row=False)
+dpg.add_table_column(parent=thumbnails_window_table)
+dpg.add_table_column(parent=thumbnails_window_table)
+thumbnails_window_table_row = dpg.add_table_row(parent=thumbnails_window_table)
+thumbnail_group = dpg.add_group(parent=thumbnails_window_table_row)
+checkbox1 = dpg.add_checkbox(parent=thumbnail_group)
+dpg.add_checkbox(parent=thumbnails_window_table_row)
+dpg.add_text(parent=thumbnail_group,default_value="nazwa zdjecia. jpg")
+tooltip = dpg.add_tooltip(parent=thumbnail_group)
+dpg.add_text(parent=tooltip,default_value="ścieżka do wyswietlenia ***********")
+
+width, height, channels, data = dpg.load_image("../../../../Desktop/baza zdjec/jeuusd992wd41 - Copy (5).jpg")
+with dpg.texture_registry():
+    texture_id = dpg.add_static_texture(width, height, data)
+scale = 5
+dpg.add_image(parent=thumbnail_group,texture_tag=texture_id,width=width/scale,height=height/scale)
 
 tags = [
     "niebo",
