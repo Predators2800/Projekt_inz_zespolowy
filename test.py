@@ -1,30 +1,41 @@
-from datetime import datetime
-import os
+from tkinter import Widget
+from dearpygui import dearpygui as dpg
+from typing import List
 
-#dir(os)                        # return attributes and methods of an 'os' module
+class texture:
+    def __init__(self, width, height, texture):
+        self.width = width
+        self.height = height
+        self.texture = texture
 
-#os.getcwd()                    # return current working directory
+dpg.create_context()
+dpg.create_viewport(title="App",width=700, height=700)
+dpg.setup_dearpygui()
 
-#os.chdir('type path here')     # change current working directory
 
-#os.listdir()                   # return list of all files and directories in the specified directory - can specify path as parameter
+primary_window = dpg.add_window()
+dpg.set_primary_window(primary_window, True)
 
-#os.makedir()                   # create a directory
-#os.makedirs()
 
-#os.rmdir()
-#os.removedirs()
+texture_registry = dpg.add_texture_registry()
+width, height, chanels, data =  dpg.load_image("a.jpg")
 
-#os.rename()
+textures: List[texture] = []
+images = []
 
-#os.stat('requirements.txt')    # return file/folder attributes and statistics
-#mod_time = os.stat('requirements.txt').st_mtime
-#print(datetime.fromtimestamp(mod_time))
+def add_texture():
+    tex = dpg.add_static_texture(width, height, data, parent=texture_registry)
+    textures.append(texture(width, height, tex))
+    images.append(dpg.add_image(textures[-1].texture, parent=primary_window))
 
-#os.walk()
-for dirpath, dirnames, filenames in os.walk('C:\\Users\\lukas\\IPZ'):
-    for filename in filenames:
-        print('Current path:', dirpath + '\\' + filename)
-#     print('Directories: ', dirnames)
-#     print('Files: ', filenames, '\n')
+def delete_texture():
+    dpg.delete_item(textures.pop().texture)
+    dpg.delete_item(images.pop())
 
+dpg.add_button(parent=primary_window ,label="add",callback=add_texture)
+dpg.add_button(parent=primary_window ,label="delete",callback=delete_texture)
+
+
+dpg.show_viewport()
+dpg.start_dearpygui()
+dpg.destroy_context()
