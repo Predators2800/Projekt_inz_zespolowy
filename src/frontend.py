@@ -15,6 +15,7 @@ FONT_SIZE = 14
 BUTTON_HEIGHT = 40
 
 CURRENT_FOLDER = ""
+IMAGE_PATHS = []
 
 """CREATE APP WINDOW"""
 
@@ -63,8 +64,11 @@ def display_file_list(fileList):
 def open_folder():
     root = Tk()
     root.withdraw()
+    global CURRENT_FOLDER
     CURRENT_FOLDER = filedialog.askdirectory()
-    display_file_list(get_file_list(CURRENT_FOLDER))
+    global IMAGE_PATHS
+    IMAGE_PATHS = get_file_list(CURRENT_FOLDER)
+    # display_file_list(get_file_list(CURRENT_FOLDER))
 
 
 dpg.add_button(label="Otwórz folder", parent=group_u1, height=BUTTON_HEIGHT, callback=open_folder)
@@ -90,24 +94,59 @@ workspace_table_row = dpg.add_table_row(parent=workspace_table)
 file_list_window = dpg.add_child_window(parent=workspace_table_row)
 
 """MIDDLE_PANEL_THUMBNAILS"""
+def add_thumnail_pannel():
+    """config thumnails"""
+    scale = 10
+    img_width = 0
+    img_height = 0
 
-thumbnails_window = dpg.add_child_window(parent=workspace_table_row)
-thumbnails_window_table = dpg.add_table(parent=thumbnails_window,header_row=False)
-dpg.add_table_column(parent=thumbnails_window_table)
-dpg.add_table_column(parent=thumbnails_window_table)
-thumbnails_window_table_row = dpg.add_table_row(parent=thumbnails_window_table)
-thumbnail_group = dpg.add_group(parent=thumbnails_window_table_row)
-checkbox1 = dpg.add_checkbox(parent=thumbnail_group)
-dpg.add_checkbox(parent=thumbnails_window_table_row)
-dpg.add_text(parent=thumbnail_group,default_value="nazwa zdjecia. jpg")
-tooltip = dpg.add_tooltip(parent=thumbnail_group)
-dpg.add_text(parent=tooltip,default_value="ścieżka do wyswietlenia ***********")
+    """*******"""
+    thumbnails_window = dpg.add_child_window(parent=workspace_table_row)
+    # thumbnails_window_table = dpg.add_table(parent=thumbnails_window,header_row=False)
+    # dpg.add_table_column(parent=thumbnails_window_table)
+    # dpg.add_table_column(parent=thumbnails_window_table)
+    # thumbnails_window_table_row = dpg.add_table_row(parent=thumbnails_window_table)
+    # thumbnail_group = dpg.add_group(parent=thumbnails_window_table_row)
+    # checkbox1 = dpg.add_checkbox(parent=thumbnail_group)
+    # dpg.add_checkbox(parent=thumbnails_window_table_row)
+    # dpg.add_text(parent=thumbnail_group,default_value="nazwa zdjecia. jpg")
+    # tooltip = dpg.add_tooltip(parent=thumbnail_group)
+    # dpg.add_text(parent=tooltip,default_value="ścieżka do wyswietlenia ***********")
+    #
+    # width, height, channels, data = dpg.load_image("../../../../Desktop/baza zdjec/jeuusd992wd41 - Copy (5).jpg")
+    # with dpg.texture_registry():
+    #     texture_id = dpg.add_static_texture(width, height, data)
+    # scale = 5
+    # dpg.add_image(parent=thumbnail_group,texture_tag=texture_id,width=width/scale,height=height/scale)
 
-width, height, channels, data = dpg.load_image("../../../../Desktop/baza zdjec/jeuusd992wd41 - Copy (5).jpg")
-with dpg.texture_registry():
-    texture_id = dpg.add_static_texture(width, height, data)
-scale = 5
-dpg.add_image(parent=thumbnail_group,texture_tag=texture_id,width=width/scale,height=height/scale)
+    textureRegistry = dpg.add_texture_registry(show=False)
+    textureList = []
+    for path in IMAGE_PATHS:
+        img_width, img_height, channels, data = dpg.load_image(path)
+        texture = dpg.add_static_texture(img_width, img_height, data, parent=textureRegistry)
+        textureList.append(texture)
+
+
+    listOfStuff = ["konie-1","konie-2","konie-3","konie-4","konie-5","konie-6","konie-7","konie-8","konie-9","konie-10","konie-11","konie-12","konie-13","konie-14","konie-15","konie-16"]
+    print("len", len(listOfStuff))
+
+    def add_thumbnails(stuffList, columns, parent=None):
+        dpg.add_child_window(label="Table of stuff", tag="windowWithTable",parent=parent)
+        dpg.add_table(tag="tableOfStuff", parent="windowWithTable", header_row=False)
+        for i in range(columns):
+            dpg.add_table_column(parent="tableOfStuff")
+        counter = 0
+        while counter < len(stuffList):
+            columnsLeft = columns if counter <= len(stuffList)-columns else len(stuffList) % columns
+            row = dpg.add_table_row(parent="tableOfStuff")
+            while columnsLeft > 0:
+                grupa = dpg.add_group(parent=row)
+                dpg.add_text(default_value=stuffList[counter], parent=grupa)
+                dpg.add_image(textureList[0], parent=grupa,width=img_width/scale,height=img_height/scale)
+                columnsLeft -= 1
+                counter += 1
+
+    add_thumbnails(IMAGE_PATHS, 3, parent=thumbnails_window)
 
 tags = [
     "niebo",
@@ -189,4 +228,7 @@ dpg.destroy_context()
 #             columnsLeft -= 1
 #             counter += 1
 
-# add_thumbnails(listOfStuff, 3, parent=thumbnails_window) 
+# add_thumbnails(listOfStuff, 3, parent=thumbnails_window)
+moje zmina
+12312312
+ljlsfsd
