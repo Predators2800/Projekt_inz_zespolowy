@@ -11,7 +11,6 @@ BUTTON_HEIGHT = 40
 
 CURRENT_FOLDER = ""
 
-# TEXTURE_REGISTRY = dpg.add_texture_registry(show=False)
 """CREATE APP WINDOW"""
 
 
@@ -56,7 +55,7 @@ def set_default_font() -> None:
     """
 
     with dpg.font_registry():
-        default_font = dpg.add_font("../resources/font/fira.ttf", FONT_SIZE)  # ładowanie czcionki z dysku
+        default_font = dpg.add_font("./resources/font/fira.ttf", FONT_SIZE)  # ładowanie czcionki z dysku
     dpg.bind_font(default_font)  # ustawia czcionkę jako default
     dpg.add_font_range(0x0100, 0x017D, parent=default_font)  # dodaje zakres polskich znaków
 
