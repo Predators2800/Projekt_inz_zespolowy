@@ -24,7 +24,7 @@ class Image():
                 is_selected: {self.is_selected}"
 
     def show(self, parent):
-        self.dpg_image = dpg.add_image(self.texture, parrent=parent)
+        self.dpg_image = dpg.add_image(self.texture_id, parent=parent)
         return self.dpg_image
 
     def remove(self):

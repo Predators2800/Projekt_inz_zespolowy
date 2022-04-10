@@ -33,12 +33,12 @@ def add_thumbnail_panel(images, parent):
             columnsLeft = columns if counter <= len(images)-columns else len(images) % columns
             row = dpg.add_table_row(tag="row"+str(counter),parent="thumbnail_table")
             while columnsLeft > 0:
-                with dpg.group(parent=row):
-                    dpg.add_image(images[counter].texture_id)
-                    with dpg.group(horizontal=True) as grupa:
+                with dpg.group(parent=row) as image_cell:
+                    images[counter].show(parent=image_cell)
+                    with dpg.group(horizontal=True) as bottom_group:
                         dpg.add_checkbox()
                         dpg.add_text(default_value=images[counter].path.name)
-                        with dpg.tooltip(parent=grupa):
+                        with dpg.tooltip(parent=bottom_group):
                             dpg.add_text(default_value=images[counter].path)
                 columnsLeft -= 1
                 counter += 1
