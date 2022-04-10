@@ -90,14 +90,6 @@ def set_default_font() -> None:
     dpg.add_font_range(0x0100, 0x017D, parent=default_font)  # dodaje zakres polskich znaków
 
 
-def set_global_callbacks():
-    """
-    Initialize callbacks:
-    -
-    """
-    dpg.set_viewport_resize_callback(workspace_viewport_resize_callback)
-
-
 def workspace_viewport_resize_callback():
     """
     Initiaize viewport resize callback:
@@ -106,6 +98,10 @@ def workspace_viewport_resize_callback():
     """
     WINDOW_HEIGHT = dpg.get_viewport_client_height()
     dpg.set_item_height("workspace_table",WINDOW_HEIGHT-TOOLBAR_HEIGHT-STATUS_PANEL_HEIGHT-20)
+
+
+def set_global_callbacks():
+    dpg.set_viewport_resize_callback(workspace_viewport_resize_callback)
 
 
 def ask_for_directory():
