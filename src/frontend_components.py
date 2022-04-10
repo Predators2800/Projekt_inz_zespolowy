@@ -31,17 +31,17 @@ def add_thumbnail_panel(images, parent):
         counter = 0
         while counter < len(images):
             columnsLeft = columns if counter <= len(images)-columns else len(images) % columns
-            row = dpg.add_table_row(tag="row"+str(counter),parent="thumbnail_table")
-            while columnsLeft > 0:
-                with dpg.group(parent=row) as image_cell:
-                    images[counter].show(parent=image_cell)
-                    with dpg.group(horizontal=True) as bottom_group:
-                        dpg.add_checkbox()
-                        dpg.add_text(default_value=images[counter].path.name)
-                        with dpg.tooltip(parent=bottom_group):
-                            dpg.add_text(default_value=images[counter].path)
-                columnsLeft -= 1
-                counter += 1
+            with dpg.table_row():
+                while columnsLeft > 0:
+                    with dpg.group() as image_cell:
+                        images[counter].show(parent=image_cell)
+                        with dpg.group(horizontal=True) as bottom_group:
+                            dpg.add_checkbox()
+                            dpg.add_text(default_value=images[counter].path.name)
+                            with dpg.tooltip(parent=bottom_group):
+                                dpg.add_text(default_value=images[counter].path)
+                    columnsLeft -= 1
+                    counter += 1
 
     start_time = time.time()
     print("czas wyświetlania miniatur",time.time()-start_time)

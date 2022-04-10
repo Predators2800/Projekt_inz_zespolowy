@@ -10,6 +10,7 @@ TOOLBAR_HEIGHT = 60
 STATUS_PANEL_HEIGHT = 30
 FONT_SIZE = 14
 BUTTON_HEIGHT = 40
+IS_TEXTURE_REGISTRY_VISIBLE = False
 
 
 def app_init() -> None:
@@ -23,7 +24,7 @@ def app_init() -> None:
     dpg.create_context(tag="context")
     set_default_font()
     dpg.create_viewport(title="nasza aplikacja", width=WINDOW_WIDTH, height=WINDOW_HEIGHT)
-    dpg.add_texture_registry(tag = "texture_registry",show=False)
+    dpg.add_texture_registry(tag = "texture_registry",show=IS_TEXTURE_REGISTRY_VISIBLE)
 
 
 def interface_init():    
@@ -111,8 +112,15 @@ def ask_for_directory():
     return path
 
 
+def clear_texture_registry():
+    dpg.delete_item("texture_registry")
+    dpg.add_texture_registry(tag="texture_registry", show=IS_TEXTURE_REGISTRY_VISIBLE)
+
 def open_folder_callback(sender, app_data, user_data):
     path = ask_for_directory()
     image_paths = get_file_list(path)
+
+    clear_texture_registry()
     images = load_images(image_paths)
+
     add_thumbnail_panel(images, "thumbnails_window")
