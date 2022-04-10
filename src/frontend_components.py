@@ -20,7 +20,7 @@ def add_thumbnail_panel(images, parent):
     Create thumbnail table with images:
     -
     """
-    columns = 3
+    columns = 4
 
     if dpg.get_alias_id("thumbnail_table"):
         dpg.delete_item("thumbnail_table")
