@@ -1,13 +1,11 @@
 import dearpygui.dearpygui as dpg
 import pathlib
 import os
+import time
 from tkinter import filedialog
 from tkinter import Tk
 from fontend_components import add_thumbnail_panel
-
-
-#global THUMBNAIL_PANEL, IMAGE_PATHS
-#IMAGE_PATHS = []
+from Image import Image
 
 def get_file_list(folder, extensions=[".jpg",".jpeg",".png",".gif",".bmp"]):
     fileList = []
@@ -19,17 +17,26 @@ def get_file_list(folder, extensions=[".jpg",".jpeg",".png",".gif",".bmp"]):
     return fileList
 
 
-# def display_file_list(fileList, file_list_window):
-#     for path in fileList:
-#         dpg.add_text(parent=file_list_window, default_value=path)
+def ask_for_directory():
+    root = Tk()
+    root.withdraw()
+    path = filedialog.askdirectory()
+    return path
+
+def load_images(image_paths):
+    images = []
+    start_time = time.time()
+    for path in image_paths:
+        img_width, img_height, channels, img_data = dpg.load_image(path.as_posix())
+        texture = dpg.add_static_texture(img_width, img_height, img_data, parent="texture_registry")
+        images.append(Image(path, img_data, img_width, img_height, texture_id=texture))
+    print("czas ladowanie do rejestru",time.time()-start_time)
+
+    return images
 
 
 def open_folder(sender, app_data, user_data):
-    print("w guziku",sender, app_data, user_data)
-    #otwórz okno > przekarz ścieżkę do
-    root = Tk()
-    root.withdraw()
-    CURRENT_FOLDER = filedialog.askdirectory()
-    IMAGE_PATHS = get_file_list(CURRENT_FOLDER)
-
-    add_thumbnail_panel(IMAGE_PATHS)
+    path = ask_for_directory()
+    image_paths = get_file_list(path)
+    images = load_images(image_paths)
+    add_thumbnail_panel(images, "thumbnails_window")

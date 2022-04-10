@@ -25,7 +25,8 @@ def app_init() -> None:
     dpg.create_context(tag="context")
     set_default_font()
     dpg.create_viewport(title="nasza aplikacja", width=WINDOW_WIDTH, height=WINDOW_HEIGHT)
-    
+    dpg.add_texture_registry(tag = "texture_registry",show=False)
+
 def interface_init():    
     """
     Initialize interface:
