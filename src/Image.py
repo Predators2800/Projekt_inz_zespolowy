@@ -29,3 +29,4 @@ class Image():
 
     def remove(self):
         dpg.delete_item(self.dpg_image)
+        dpg.delete_item(self.texture_id)
