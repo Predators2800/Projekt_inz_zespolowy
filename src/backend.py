@@ -2,8 +2,6 @@ import dearpygui.dearpygui as dpg
 import pathlib
 import os
 import time
-from tkinter import filedialog
-from tkinter import Tk
 from frontend_components import add_thumbnail_panel
 from Image import Image
 
@@ -18,13 +16,6 @@ def get_file_list(folder, extensions=[".jpg",".jpeg",".png",".gif",".bmp"]):
     return fileList
 
 
-def ask_for_directory():
-    root = Tk()
-    root.withdraw()
-    path = filedialog.askdirectory()
-    return path
-
-
 def load_images(image_paths):
     images = []
     start_time = time.time()
@@ -35,10 +26,3 @@ def load_images(image_paths):
     print("czas ladowania do rejestru",time.time()-start_time)
 
     return images
-
-
-def open_folder(sender, app_data, user_data):
-    path = ask_for_directory()
-    image_paths = get_file_list(path)
-    images = load_images(image_paths)
-    add_thumbnail_panel(images, "thumbnails_window")

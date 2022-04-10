@@ -1,7 +1,8 @@
 import dearpygui.dearpygui as dpg
-from backend import open_folder
+from backend import get_file_list, load_images
 from frontend_components import popup, add_image_tags_list, add_thumbnail_panel
-
+from tkinter import filedialog
+from tkinter import Tk
 
 WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 800
@@ -39,7 +40,7 @@ def interface_init():
                     dpg.add_table_column(tag="toolbar_2_col", init_width_or_weight=2)
                     with dpg.table_row(tag="toolbar_table_row"):
                         with dpg.group(tag="group_toolbar_1", horizontal=True):
-                            dpg.add_button(label="Otwórz folder", height=BUTTON_HEIGHT, callback=open_folder)
+                            dpg.add_button(label="Otwórz folder", height=BUTTON_HEIGHT, callback=open_folder_callback)
                         with dpg.group(tag="group_toolbar_2", horizontal=True):
                             dpg.add_button(label="Pokaż w Eksloratorze", height=BUTTON_HEIGHT)
                             dpg.add_button(label="Otwórz", height=BUTTON_HEIGHT)
@@ -105,3 +106,17 @@ def workspace_viewport_resize_callback():
     """
     WINDOW_HEIGHT = dpg.get_viewport_client_height()
     dpg.set_item_height("workspace_table",WINDOW_HEIGHT-TOOLBAR_HEIGHT-STATUS_PANEL_HEIGHT-20)
+
+
+def ask_for_directory():
+    root = Tk()
+    root.withdraw()
+    path = filedialog.askdirectory()
+    return path
+
+
+def open_folder_callback(sender, app_data, user_data):
+    path = ask_for_directory()
+    image_paths = get_file_list(path)
+    images = load_images(image_paths)
+    add_thumbnail_panel(images, "thumbnails_window")
