@@ -4,7 +4,7 @@ import os
 import time
 from tkinter import filedialog
 from tkinter import Tk
-from fontend_components import add_thumbnail_panel
+from frontend_components import add_thumbnail_panel
 from Image import Image
 
 def get_file_list(folder, extensions=[".jpg",".jpeg",".png",".gif",".bmp"]):
@@ -30,7 +30,7 @@ def load_images(image_paths):
         img_width, img_height, channels, img_data = dpg.load_image(path.as_posix())
         texture = dpg.add_static_texture(img_width, img_height, img_data, parent="texture_registry")
         images.append(Image(path, img_data, img_width, img_height, texture_id=texture))
-    print("czas ladowanie do rejestru",time.time()-start_time)
+    print("czas ladowania do rejestru",time.time()-start_time)
 
     return images
 

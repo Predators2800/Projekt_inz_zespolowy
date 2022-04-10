@@ -1,17 +1,14 @@
 import dearpygui.dearpygui as dpg
 from backend import open_folder
+from frontend_components import popup, add_image_tags_list, add_thumbnail_panel
+
 
 WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 800
 TOOLBAR_HEIGHT = 60
 STATUS_PANEL_HEIGHT = 30
-
 FONT_SIZE = 14
 BUTTON_HEIGHT = 40
-
-CURRENT_FOLDER = ""
-
-"""CREATE APP WINDOW"""
 
 
 def app_init() -> None:
@@ -26,6 +23,7 @@ def app_init() -> None:
     set_default_font()
     dpg.create_viewport(title="nasza aplikacja", width=WINDOW_WIDTH, height=WINDOW_HEIGHT)
     dpg.add_texture_registry(tag = "texture_registry",show=False)
+
 
 def interface_init():    
     """
@@ -54,6 +52,7 @@ def interface_init():
                     with dpg.table_row(tag="workspace_table_row"):
                         dpg.add_child_window(tag = "thumbnails_window")
                         dpg.add_child_window(tag = "tags_window",label="Tagi")
+                        add_image_tags_list("tags_window")
             with dpg.table_row(tag="status_panel"):
                 with dpg.table(tag="status_panel_table", borders_outerH=True, borders_outerV=True, header_row=False):
                     dpg.add_table_column()
@@ -70,6 +69,7 @@ def app_run() -> None:
     dpg.setup_dearpygui()
     dpg.show_viewport()
     dpg.start_dearpygui()
+
 
 def app_cleanup():
     dpg.destroy_context()
@@ -103,37 +103,5 @@ def workspace_viewport_resize_callback():
     - gets called each time window is being resized by the user
     -
     """
-    WINDOW_WIDTH = dpg.get_viewport_client_width()
     WINDOW_HEIGHT = dpg.get_viewport_client_height()
-    dpg.set_item_height("workspace_table",
-                        WINDOW_HEIGHT-TOOLBAR_HEIGHT-STATUS_PANEL_HEIGHT-20)
-
-
-
-def workspace_add_photo_tags(tags_window):
-    """
-    Workspace:
-    -
-    """
-    tags = [
-        "niebo",
-        "trawa",
-        "plaza",
-        "śnieg",
-        "ludzie",
-        "zwierzęta",
-        "samochody",
-        "czerwony",
-        "czarny",
-        "red",
-        "green",
-        "blue",
-        "red",
-        "green",
-        "blue",
-        "red",
-        "green",
-        "blue"
-    ]
-
-    [dpg.add_checkbox(label=tag, parent=tags_window) for tag in tags]
+    dpg.set_item_height("workspace_table",WINDOW_HEIGHT-TOOLBAR_HEIGHT-STATUS_PANEL_HEIGHT-20)
