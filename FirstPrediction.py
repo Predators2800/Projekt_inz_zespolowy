@@ -7,37 +7,29 @@ Created on Sun Mar 20 19:59:41 2022
 
 from imageai.Classification import ImageClassification
 import os
+import pathlib
 
 
-execution_path = os.getcwd()
+execution_path = "C:\\Users\\lukas\\IPZ\\Projekt_inz_zespolowy"
 
 prediction = ImageClassification()
-
-
-
-prediction.setModelTypeAsResNet50() #( resnet50_imagenet_tf.2.0.h5 )
-#prediction.setModelTypeAsMobileNetV2() # mobilenet_v2.h5
-#prediction.setModelTypeAsInceptionV3() # inception_v3_weights_tf_dim_ordering_tf_kernels.h5
-
-
-#prediction.setModelPath(os.path.join(execution_path, "mobilenet_v2.h5"))
+prediction.setModelTypeAsResNet50()
 prediction.setModelPath(os.path.join(execution_path, "resnet50_imagenet_tf.2.0.h5"))
-#prediction.setModelPath(os.path.join(execution_path, "inception_v3_weights_tf_dim_ordering_tf_kernels.h5"))
 prediction.loadModel()
 
 
-def recognize(name):
-
-   predictions, probabilities = prediction.classifyImage(os.path.join(execution_path, name),result_count=3 )
-   for eachPrediction, eachProbability in zip(predictions, probabilities):
-              print(eachPrediction , " : " , eachProbability)
+def recognize(file_path, file_name):
+    # predictions, probabilities = prediction.classifyImage(os.path.join(execution_path, file_path),result_count=3 )
+    predictions, probabilities = prediction.classifyImage(file_path, result_count=3 )
+    for eachPrediction, eachProbability in zip(predictions, probabilities):
+                print("File name:", file_name, "  [", eachPrediction , " : " , eachProbability, "]")
         
-        
 
-while(1):
+fileList = []
+extensions=[".jpg",".jpeg",".png",".gif",".bmp"]
+for dirpath, dirnames, filenames in os.walk(os.getcwd()):
+    for filename in filenames:
+        path = pathlib.Path(dirpath + '\\' + filename)
+        if path.suffix.lower() in extensions:
+            recognize(path, filename)
 
-    nam = input('Enter your name:')    
-
-    print(recognize(nam)) 
-        
-        
