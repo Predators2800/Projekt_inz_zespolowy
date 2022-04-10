@@ -7,6 +7,7 @@ from tkinter import Tk
 from frontend_components import add_thumbnail_panel
 from Image import Image
 
+
 def get_file_list(folder, extensions=[".jpg",".jpeg",".png",".gif",".bmp"]):
     fileList = []
     for dirpath, dirnames, filenames in os.walk(folder):
@@ -22,6 +23,7 @@ def ask_for_directory():
     root.withdraw()
     path = filedialog.askdirectory()
     return path
+
 
 def load_images(image_paths):
     images = []
