@@ -30,3 +30,6 @@ class Image():
     def remove(self):
         dpg.delete_item(self.dpg_image)
         dpg.delete_item(self.texture_id)
+
+    def select(self):
+        self.is_selected = not self.is_selected

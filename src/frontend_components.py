@@ -15,6 +15,15 @@ def popup(*, connect_to):
     dpg.pop_container_stack()
 
 
+def select_image_callback(sender, widget_data, image):
+    image.select()
+    parent = dpg.get_item_parent(sender)
+    children = dpg.get_item_children(parent)
+    image_file_name = children[1][1]
+    conditional_color = (0, 255, 0, 255) if image.is_selected else (255, 255, 255, 255)
+    dpg.configure_item(image_file_name, color=conditional_color) 
+
+
 def add_thumbnail_panel(images, parent):
     """
     Create thumbnail table with images:
@@ -36,7 +45,7 @@ def add_thumbnail_panel(images, parent):
                     with dpg.group() as image_cell:
                         images[counter].show(parent=image_cell)
                         with dpg.group(horizontal=True) as bottom_group:
-                            dpg.add_checkbox()
+                            dpg.add_checkbox(user_data=images[counter], callback=select_image_callback)
                             dpg.add_text(default_value=images[counter].path.name)
                             with dpg.tooltip(parent=bottom_group):
                                 dpg.add_text(default_value=images[counter].path)
