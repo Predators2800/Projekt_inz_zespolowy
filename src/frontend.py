@@ -1,17 +1,16 @@
 import dearpygui.dearpygui as dpg
-
+from backend import get_file_list, load_images
+from frontend_components import popup, add_image_tags_list, add_thumbnail_panel
+from tkinter import filedialog
+from tkinter import Tk
 
 WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 800
 TOOLBAR_HEIGHT = 60
 STATUS_PANEL_HEIGHT = 30
-
 FONT_SIZE = 14
 BUTTON_HEIGHT = 40
-
-CURRENT_FOLDER = ""
-
-"""CREATE APP WINDOW"""
+IS_TEXTURE_REGISTRY_VISIBLE = False
 
 
 def app_init() -> None:
@@ -25,24 +24,56 @@ def app_init() -> None:
     dpg.create_context(tag="context")
     set_default_font()
     dpg.create_viewport(title="nasza aplikacja", width=WINDOW_WIDTH, height=WINDOW_HEIGHT)
-    dpg.add_window(tag="main_window", label="okno")
-    dpg.set_primary_window("main_window", True)
-
-    dpg.add_table(
-        tag="main_table", parent="main_window", borders_innerH=True, borders_innerV=True, header_row=False
-    )
-    dpg.add_table_column(tag="main_column", parent="main_table")
+    dpg.add_texture_registry(tag = "texture_registry",show=IS_TEXTURE_REGISTRY_VISIBLE)
 
 
-def app_setup() -> None:
+def interface_init():    
+    """
+    Initialize interface:
+    """
+    with dpg.window(tag="main_window", label="okno"):
+        dpg.set_primary_window("main_window", True)
+        with dpg.table(tag="main_table", borders_innerH=True, borders_innerV=True, header_row=False):
+            dpg.add_table_column(tag="main_column")
+            with dpg.table_row(tag="toolbar", height=TOOLBAR_HEIGHT):
+                with dpg.table(tag="toolbar_table", header_row=False):
+                    dpg.add_table_column(tag="toolbar_1_col", init_width_or_weight=3)
+                    dpg.add_table_column(tag="toolbar_2_col", init_width_or_weight=2)
+                    with dpg.table_row(tag="toolbar_table_row"):
+                        with dpg.group(tag="group_toolbar_1", horizontal=True):
+                            dpg.add_button(label="Otwórz folder", height=BUTTON_HEIGHT, callback=open_folder_callback)
+                        with dpg.group(tag="group_toolbar_2", horizontal=True):
+                            dpg.add_button(label="Pokaż w Eksloratorze", height=BUTTON_HEIGHT)
+                            dpg.add_button(label="Otwórz", height=BUTTON_HEIGHT)
+                            dpg.add_button(label="Kopiuj", height=BUTTON_HEIGHT)
+                            dpg.add_button(label="Kasuj", height=BUTTON_HEIGHT)
+            with dpg.table_row(tag="workspace"):
+                with dpg.table(tag="workspace_table", no_host_extendY=True, resizable=True, borders_innerH=False, borders_innerV=True, header_row=True):
+                    dpg.add_table_column(label="Miniatury", init_width_or_weight=5)
+                    dpg.add_table_column(label="Tagi", init_width_or_weight=1)
+                    with dpg.table_row(tag="workspace_table_row"):
+                        dpg.add_child_window(tag = "thumbnails_window")
+                        dpg.add_child_window(tag = "tags_window",label="Tagi")
+                        add_image_tags_list("tags_window")
+            with dpg.table_row(tag="status_panel"):
+                with dpg.table(tag="status_panel_table", borders_outerH=True, borders_outerV=True, header_row=False):
+                    dpg.add_table_column()
+                    with dpg.table_row(tag="status_panel_table_row", height=STATUS_PANEL_HEIGHT):
+                        dpg.add_slider_int(label="progressbar", default_value=30)
+
+
+def app_run() -> None:
     """
     Main window:
-    - TO DO
+    - Set dearpygui and runs main program loop
     """
 
     dpg.setup_dearpygui()
     dpg.show_viewport()
     dpg.start_dearpygui()
+
+
+def app_cleanup():
     dpg.destroy_context()
 
 
@@ -60,139 +91,36 @@ def set_default_font() -> None:
     dpg.add_font_range(0x0100, 0x017D, parent=default_font)  # dodaje zakres polskich znaków
 
 
-def upper_panel_init():
+def workspace_viewport_resize_callback():
     """
-    Upper panel:
-    - Create toolbar's table structure
-    - Set toolbar's parent to main application table (REWORK)
-    - (group_u1, group_u2)
-    - Returns (group_u1, group_u2)
-    """
-
-    dpg.add_table_row(tag="toolbar", parent="main_table", height=TOOLBAR_HEIGHT)
-    dpg.add_table(tag="toolbar_table", parent="toolbar", header_row=False)
-    dpg.add_table_column(tag="toolbar_1_col", parent="toolbar_table", init_width_or_weight=3)
-    dpg.add_table_column(tag="toolbar_2_col", parent="toolbar_table", init_width_or_weight=2)
-    dpg.add_table_row(tag="toolbar_table_row", parent="toolbar_table")
-
-    dpg.add_group(tag="group_toolbar_1", horizontal=True, parent="toolbar_table_row")
-    dpg.add_group(tag="group_toolbar_2", horizontal=True, parent="toolbar_table_row")
-
-
-def upper_panel_layout(_open_folder):
-    """
-    Upper panel:
-    - Create toolbar buttons
-    - Set on-click functions
-    """
-
-    dpg.add_button(label="Otwórz folder", parent="group_toolbar_1", height=BUTTON_HEIGHT, callback=_open_folder)
-    dpg.add_button(label="Pokaż w Eksloratorze", parent="group_toolbar_2", height=BUTTON_HEIGHT)
-    dpg.add_button(label="Otwórz", parent="group_toolbar_2", height=BUTTON_HEIGHT)
-    dpg.add_button(label="Kopiuj", parent="group_toolbar_2", height=BUTTON_HEIGHT)
-    dpg.add_button(label="Kasuj", parent="group_toolbar_2", height=BUTTON_HEIGHT)
-
-
-def middle_panel_init():
-    """
-    Middle panel:
-    - Initialize application's workspace
-    - Set workspace's parent to main table object
-    - Return workspace table and row objects
-    """
-
-    dpg.add_table_row(tag="workspace", parent="main_table")
-    dpg.add_table(tag="workspace_table", no_host_extendY=True, resizable=True,
-                  parent="workspace", borders_innerH=False, borders_innerV=True, header_row=True)
-    dpg.add_table_row(tag="workspace_table_row", parent="workspace_table")
-
-
-def middle_panel_layout():
-    """
-    Middle panel:
-    - Create workspace tables
-    - Set workspace tables' parent to workspace table
-    - Create file list, thumbnails and tags windows, set parent as workspace_table_row
-    - Return file list and tags windows
-    """
-
-    #dpg.add_table_column(parent="workspace_table", label="Pliki",init_width_or_weight=1)
-    dpg.add_table_column(parent="workspace_table", label="Miniatury", init_width_or_weight=5)
-    dpg.add_table_column(parent="workspace_table", label="Tagi", init_width_or_weight=1)
-    #dpg.add_child_window(tag = "file_list_window",parent="workspace_table_row")
-    dpg.add_child_window(tag = "thumbnails_window",parent="workspace_table_row")
-    dpg.add_child_window(tag = "tags_window",label="Tagi", parent="workspace_table_row")
-
-
-def workspace_on_resize():
-    """
-    Workspace:
+    Initiaize viewport resize callback:
+    - gets called each time window is being resized by the user
     -
     """
-    WINDOW_WIDTH = dpg.get_viewport_client_width()
     WINDOW_HEIGHT = dpg.get_viewport_client_height()
-    dpg.set_item_height("workspace_table",
-                        WINDOW_HEIGHT-TOOLBAR_HEIGHT-STATUS_PANEL_HEIGHT-20)
+    dpg.set_item_height("workspace_table",WINDOW_HEIGHT-TOOLBAR_HEIGHT-STATUS_PANEL_HEIGHT-20)
 
 
-def workspace_set_viewport_resize_callback(on_resize = None):
-    """
-    Workspace:
-    -
-    """
-    if on_resize:
-        dpg.set_viewport_resize_callback(on_resize)
+def set_global_callbacks():
+    dpg.set_viewport_resize_callback(workspace_viewport_resize_callback)
 
 
-
-def workspace_add_photo_tags(tags_window):
-    """
-    Workspace:
-    -
-    """
-    tags = [
-        "niebo",
-        "trawa",
-        "plaza",
-        "śnieg",
-        "ludzie",
-        "zwierzęta",
-        "samochody",
-        "czerwony",
-        "czarny",
-        "red",
-        "green",
-        "blue",
-        "red",
-        "green",
-        "blue",
-        "red",
-        "green",
-        "blue"
-    ]
-
-    [dpg.add_checkbox(label=tag, parent=tags_window) for tag in tags]
+def ask_for_directory():
+    root = Tk()
+    root.withdraw()
+    path = filedialog.askdirectory()
+    return path
 
 
-def lower_panel_init():
-    """
-    Lower panel:
-    -
-    """
-    dpg.add_table_row(tag="status_panel",parent="main_table")
-    dpg.add_table(tag="status_panel_table",parent="status_panel", borders_outerH=True,
-                                       borders_outerV=True, header_row=False)
-    dpg.add_table_column(parent="status_panel_table")
+def clear_texture_registry():
+    dpg.delete_item("texture_registry")
+    dpg.add_texture_registry(tag="texture_registry", show=IS_TEXTURE_REGISTRY_VISIBLE)
 
-    dpg.add_table_row(tag="status_panel_table_row",parent="status_panel_table",
-                                               height=STATUS_PANEL_HEIGHT)
+def open_folder_callback(sender, app_data, user_data):
+    path = ask_for_directory()
+    image_paths = get_file_list(path)
 
+    clear_texture_registry()
+    images = load_images(image_paths)
 
-
-def lower_panel_layout():
-    """
-    Lower panel:
-    -
-    """
-    dpg.add_slider_int(label="progressbar", default_value=30,
-                       parent="status_panel_table_row")
+    add_thumbnail_panel(images, "thumbnails_window")

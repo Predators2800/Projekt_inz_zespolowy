@@ -1,15 +1,13 @@
 from frontend import *
 from backend import *
 
+"""INITIALIZE"""
 app_init()
-upper_panel_init()
-upper_panel_layout(open_folder)
+interface_init()
+set_global_callbacks()
 
-middle_panel_init()
-middle_panel_layout()
+"""RUN MAIN LOOP"""
+app_run()
 
-lower_panel_init()
-lower_panel_layout()
-
-workspace_set_viewport_resize_callback(workspace_on_resize())
-app_setup()
+"""CLEANUP"""
+app_cleanup()
