@@ -9,7 +9,7 @@ from imageai.Classification import ImageClassification
 
 def image_to_dpg_image(image):
     """
-    Converst PIL image format to dpg image format
+    Converts PIL image format to dpg image format
     """
     image.putalpha(255)
     dpg_image = np.frombuffer(image.tobytes(), dtype=np.uint8) / 255.0
@@ -33,8 +33,8 @@ class Predictor():
         self._prediction.setModelPath("resnet50_imagenet_tf.2.0.h5")
         self._prediction.loadModel()
 
-    def recognize(self, file_path):
-        predictions, probabilities = self._prediction.classifyImage(file_path, input_type='array' )
+    def recognize(self, image_data):
+        predictions, probabilities = self._prediction.classifyImage(image_data, input_type='array' )
         return predictions, probabilities
 
 
