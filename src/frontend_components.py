@@ -38,12 +38,18 @@ def add_thumbnail_panel(images, parent):
         for i in range(columns):
             dpg.add_table_column()
         counter = 0
+        
+        if not dpg.get_value("progress_bar"):
+            dpg.set_value("progress_bar", 0.0)
+
         while counter < len(images):
             columnsLeft = columns if counter <= len(images)-columns else len(images) % columns
             with dpg.table_row():
                 while columnsLeft > 0:
                     with dpg.group() as image_cell:
                         images[counter].show(parent=image_cell)
+                        dpg.set_value("progress_bar", (counter+1)/len(images))
+                        dpg.configure_item("progress_bar", overlay="Loading: " + str(round((counter+1)*100/len(images), 1)) + "%")
                         with dpg.group(horizontal=True) as bottom_group:
                             dpg.add_checkbox(user_data=images[counter], callback=select_image_callback)
                             dpg.add_text(default_value=images[counter].path.name)
@@ -51,8 +57,8 @@ def add_thumbnail_panel(images, parent):
                                 dpg.add_text(default_value=images[counter].path)
                     columnsLeft -= 1
                     counter += 1
-
     start_time = time.time()
+    dpg.configure_item("progress_bar", overlay="Loading finished")
     print("czas wyświetlania miniatur",time.time()-start_time)
 
 

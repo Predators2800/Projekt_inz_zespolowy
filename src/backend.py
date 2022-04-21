@@ -7,6 +7,7 @@ from PIL import Image as pil_image
 import numpy as np
 from imageai.Classification import ImageClassification
 
+
 def image_to_dpg_image(image):
     """
     Converts PIL image format to dpg image format
@@ -52,12 +53,20 @@ def get_file_list(folder, extensions=[".jpg",".jpeg",".png",".gif",".bmp"]):
 
 
 def load_images(image_paths):
+    counter = 1
+    if not dpg.get_value("progress_bar"):
+        dpg.set_value("progress_bar", 0)
     images = []
     start_time = time.time()
     for path in image_paths:
         img_width, img_height, channels, img_data = dpg.load_image(path.as_posix())
         texture = dpg.add_static_texture(img_width, img_height, img_data, parent="texture_registry")
         images.append(Image(path, img_data, img_width, img_height, texture_id=texture))
+        dpg.set_value("progress_bar", counter/len(image_paths))
+        dpg.configure_item("progress_bar", overlay="Loading: " + str(round(counter*100/len(image_paths), 1)) + "%")
+        counter += 1
     print("czas ladowania do rejestru",time.time()-start_time)
+    
 
     return images
+    

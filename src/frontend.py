@@ -59,7 +59,7 @@ def interface_init():
                 with dpg.table(tag="status_panel_table", borders_outerH=True, borders_outerV=True, header_row=False):
                     dpg.add_table_column()
                     with dpg.table_row(tag="status_panel_table_row", height=STATUS_PANEL_HEIGHT):
-                        dpg.add_slider_int(label="progressbar", default_value=30)
+                        dpg.add_progress_bar(label="progressbar", overlay="progress", tag="progress_bar")
 
 
 def app_run() -> None:
