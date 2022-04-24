@@ -1,6 +1,8 @@
 from contextlib import contextmanager
 import dearpygui.dearpygui as dpg
 import time
+from Image import Image
+
 
 @contextmanager
 def popup(*, connect_to):
@@ -21,10 +23,10 @@ def select_image_callback(sender, widget_data, image):
     children = dpg.get_item_children(parent)
     image_file_name = children[1][1]
     conditional_color = (0, 255, 0, 255) if image.is_selected else (255, 255, 255, 255)
-    dpg.configure_item(image_file_name, color=conditional_color) 
+    dpg.configure_item(image_file_name, color=conditional_color)
 
 
-def add_thumbnail_panel(images, parent):
+def add_thumbnail_panel(parent):
     """
     Create thumbnail table with images:
     -
@@ -34,7 +36,7 @@ def add_thumbnail_panel(images, parent):
     if dpg.get_alias_id("thumbnail_table"):
         dpg.delete_item("thumbnail_table")
 
-    with dpg.table(tag="thumbnail_table", parent=parent, header_row=False,borders_innerH=True,borders_innerV=True):
+    with dpg.table(tag="thumbnail_table", parent=parent, header_row=False, borders_innerH=True, borders_innerV=True):
         for i in range(columns):
             dpg.add_table_column()
         counter = 0
@@ -42,24 +44,24 @@ def add_thumbnail_panel(images, parent):
         if not dpg.get_value("progress_bar"):
             dpg.set_value("progress_bar", 0.0)
 
-        while counter < len(images):
-            columnsLeft = columns if counter <= len(images)-columns else len(images) % columns
+        while counter < len(Image.IMAGES):
+            columns_left = columns if counter <= len(Image.IMAGES)-columns else len(Image.IMAGES) % columns
             with dpg.table_row():
-                while columnsLeft > 0:
+                while columns_left > 0:
                     with dpg.group() as image_cell:
-                        images[counter].show(parent=image_cell)
-                        dpg.set_value("progress_bar", (counter+1)/len(images))
-                        dpg.configure_item("progress_bar", overlay="Loading: " + str(round((counter+1)*100/len(images), 1)) + "%")
+                        Image.IMAGES[counter].show(parent=image_cell)
+                        dpg.set_value("progress_bar", (counter+1)/len(Image.IMAGES))
+                        dpg.configure_item("progress_bar", overlay="Loading: " + str(round((counter+1)*100/len(Image.IMAGES), 1)) + "%")
                         with dpg.group(horizontal=True) as bottom_group:
-                            dpg.add_checkbox(user_data=images[counter], callback=select_image_callback)
-                            dpg.add_text(default_value=images[counter].path.name)
+                            dpg.add_checkbox(user_data=Image.IMAGES[counter], callback=select_image_callback)
+                            dpg.add_text(default_value=Image.IMAGES[counter].path.name)
                             with dpg.tooltip(parent=bottom_group):
-                                dpg.add_text(default_value=images[counter].path)
-                    columnsLeft -= 1
+                                dpg.add_text(default_value=Image.IMAGES[counter].path)
+                    columns_left -= 1
                     counter += 1
     start_time = time.time()
     dpg.configure_item("progress_bar", overlay="Loading finished")
-    print("czas wyświetlania miniatur",time.time()-start_time)
+    print("czas wyświetlania miniatur", time.time()-start_time)
 
 
 def add_image_tags_list(parent):

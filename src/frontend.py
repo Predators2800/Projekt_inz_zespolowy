@@ -1,8 +1,9 @@
 import dearpygui.dearpygui as dpg
-from backend import get_file_list, load_images
+from backend import get_file_list, load_images, delete_selected_files
 from frontend_components import popup, add_image_tags_list, add_thumbnail_panel
 from tkinter import filedialog
 from tkinter import Tk
+from Image import Image
 
 WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 800
@@ -46,14 +47,14 @@ def interface_init():
                             dpg.add_button(label="Pokaż w Eksloratorze", height=BUTTON_HEIGHT)
                             dpg.add_button(label="Otwórz", height=BUTTON_HEIGHT)
                             dpg.add_button(label="Kopiuj", height=BUTTON_HEIGHT)
-                            dpg.add_button(label="Kasuj", height=BUTTON_HEIGHT)
+                            dpg.add_button(label="Kasuj", height=BUTTON_HEIGHT, callback=delete_selected_callback)
             with dpg.table_row(tag="workspace"):
                 with dpg.table(tag="workspace_table", no_host_extendY=True, resizable=True, borders_innerH=False, borders_innerV=True, header_row=True):
                     dpg.add_table_column(label="Miniatury", init_width_or_weight=5)
                     dpg.add_table_column(label="Tagi", init_width_or_weight=1)
                     with dpg.table_row(tag="workspace_table_row"):
-                        dpg.add_child_window(tag = "thumbnails_window")
-                        dpg.add_child_window(tag = "tags_window",label="Tagi")
+                        dpg.add_child_window(tag="thumbnails_window")
+                        dpg.add_child_window(tag="tags_window", label="Tagi")
                         add_image_tags_list("tags_window")
             with dpg.table_row(tag="status_panel"):
                 with dpg.table(tag="status_panel_table", borders_outerH=True, borders_outerV=True, header_row=False):
@@ -98,7 +99,7 @@ def workspace_viewport_resize_callback():
     -
     """
     WINDOW_HEIGHT = dpg.get_viewport_client_height()
-    dpg.set_item_height("workspace_table",WINDOW_HEIGHT-TOOLBAR_HEIGHT-STATUS_PANEL_HEIGHT-20)
+    dpg.set_item_height("workspace_table", WINDOW_HEIGHT-TOOLBAR_HEIGHT-STATUS_PANEL_HEIGHT-20)
 
 
 def set_global_callbacks():
@@ -116,11 +117,21 @@ def clear_texture_registry():
     dpg.delete_item("texture_registry")
     dpg.add_texture_registry(tag="texture_registry", show=IS_TEXTURE_REGISTRY_VISIBLE)
 
+
 def open_folder_callback(sender, app_data, user_data):
     path = ask_for_directory()
     image_paths = get_file_list(path)
 
     clear_texture_registry()
-    images = load_images(image_paths)
+    load_images(image_paths)
 
-    add_thumbnail_panel(images, "thumbnails_window")
+    add_thumbnail_panel(parent="thumbnails_window")
+
+
+def delete_selected_callback(sender, app_data, user_data):
+    if Image.SELECTED_IMAGES:
+        delete_selected_files()
+        add_thumbnail_panel(parent="thumbnails_window")
+    else:
+        print("Nie ma czego usunac")
+        pass    # We can add popup to tell user there is nothing to delete

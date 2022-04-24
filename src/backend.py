@@ -16,6 +16,7 @@ def image_to_dpg_image(image):
     dpg_image = np.frombuffer(image.tobytes(), dtype=np.uint8) / 255.0
     return dpg_image
 
+
 def image_load(file_path):
     """
     Loads image in PIL format from file path
@@ -24,7 +25,8 @@ def image_load(file_path):
     image = pil_image.open(file_path)
     return image
 
-class Predictor():
+
+class Predictor:
     """
     Predictor class used for recognizing images.
     """
@@ -35,38 +37,44 @@ class Predictor():
         self._prediction.loadModel()
 
     def recognize(self, image_data):
-        predictions, probabilities = self._prediction.classifyImage(image_data, input_type='array' )
+        predictions, probabilities = self._prediction.classifyImage(image_data, input_type='array')
         return predictions, probabilities
 
 
-def get_file_list(folder, extensions=[".jpg",".jpeg",".png",".gif",".bmp"]):
+def get_file_list(folder, extensions=[".jpg", ".jpeg", ".png", ".gif", ".bmp"]):
     """
     Returns list of files in folder with given extensions.
     """
-    fileList = []
+    file_list = []
     for dirpath, dirnames, filenames in os.walk(folder):
         for filename in filenames:
             path = pathlib.Path(dirpath + '\\' + filename)
             if path.suffix.lower() in extensions:
-                fileList.append(path)
-    return fileList
+                file_list.append(path)
+    return file_list
 
 
 def load_images(image_paths):
     counter = 1
     if not dpg.get_value("progress_bar"):
         dpg.set_value("progress_bar", 0)
-    images = []
     start_time = time.time()
     for path in image_paths:
         img_width, img_height, channels, img_data = dpg.load_image(path.as_posix())
         texture = dpg.add_static_texture(img_width, img_height, img_data, parent="texture_registry")
-        images.append(Image(path, img_data, img_width, img_height, texture_id=texture))
-        dpg.set_value("progress_bar", counter/len(image_paths))
-        dpg.configure_item("progress_bar", overlay="Loading: " + str(round(counter*100/len(image_paths), 1)) + "%")
+        Image.IMAGES.append(Image(path, img_data, img_width, img_height, texture_id=texture))
+        dpg.set_value("progress_bar", counter / len(image_paths))
+        dpg.configure_item("progress_bar", overlay="Loading: " + str(round(counter * 100 / len(image_paths), 1)) + "%")
         counter += 1
-    print("czas ladowania do rejestru",time.time()-start_time)
-    
+    print("czas ladowania do rejestru", time.time()-start_time)
 
-    return images
-    
+
+def delete_file(image: Image):
+    os.remove(image.path)
+    image.remove()
+
+
+def delete_selected_files():
+    for i in Image.SELECTED_IMAGES:
+        delete_file(i)
+    Image.SELECTED_IMAGES.clear()
