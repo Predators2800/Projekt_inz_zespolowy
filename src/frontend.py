@@ -121,10 +121,9 @@ def clear_texture_registry():
 def open_folder_callback(sender, app_data, user_data):
     path = ask_for_directory()
     image_paths = get_file_list(path)
-
     clear_texture_registry()
+    Image.IMAGES.clear()
     load_images(image_paths)
-
     add_thumbnail_panel(parent="thumbnails_window")
 
 
