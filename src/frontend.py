@@ -47,7 +47,7 @@ def interface_init():
                             dpg.add_button(label="Otwórz folder", height=BUTTON_HEIGHT, callback=open_folder_callback)
                         with dpg.group(tag="group_toolbar_2", horizontal=True):
                             dpg.add_button(label="Pokaż w Eksloratorze", height=BUTTON_HEIGHT, callback=show_in_explorer_callback)
-                            dpg.add_button(label="Otwórz", height=BUTTON_HEIGHT,callback=open_in_defoult_callback)
+                            dpg.add_button(label="Otwórz", height=BUTTON_HEIGHT,callback=open_in_default_callback)
                             dpg.add_button(label="Kopiuj", height=BUTTON_HEIGHT)
                             dpg.add_button(label="Kasuj", height=BUTTON_HEIGHT, callback=delete_selected_callback)
             with dpg.table_row(tag="workspace"):
@@ -125,7 +125,7 @@ def show_in_explorer_callback():
     for image in Image.SELECTED_IMAGES:
         subprocess.Popen(r'explorer /select,"' + str(image.path) + '"')
 
-def open_in_defoult_callback(): 
+def open_in_default_callback(): 
     for image in Image.SELECTED_IMAGES:
         paintPath= {'linux':'xdg-open',
                                   'win32':'explorer',

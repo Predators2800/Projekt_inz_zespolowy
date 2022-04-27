@@ -78,4 +78,3 @@ images = {
           'wies':['barn'],
           'impreza':['beer_bottle','beer_glass','barrel']
 }
-print(images["zwierzęta"]) 
