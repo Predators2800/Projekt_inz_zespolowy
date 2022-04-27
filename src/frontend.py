@@ -5,6 +5,7 @@ from tkinter import filedialog
 from tkinter import Tk
 from Image import Image
 import subprocess
+import sys
 
 WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 800
@@ -46,7 +47,7 @@ def interface_init():
                             dpg.add_button(label="Otwórz folder", height=BUTTON_HEIGHT, callback=open_folder_callback)
                         with dpg.group(tag="group_toolbar_2", horizontal=True):
                             dpg.add_button(label="Pokaż w Eksloratorze", height=BUTTON_HEIGHT, callback=show_in_explorer_callback)
-                            dpg.add_button(label="Otwórz", height=BUTTON_HEIGHT)
+                            dpg.add_button(label="Otwórz", height=BUTTON_HEIGHT,callback=open_in_defoult_callback)
                             dpg.add_button(label="Kopiuj", height=BUTTON_HEIGHT)
                             dpg.add_button(label="Kasuj", height=BUTTON_HEIGHT, callback=delete_selected_callback)
             with dpg.table_row(tag="workspace"):
@@ -118,9 +119,18 @@ def clear_texture_registry():
     dpg.delete_item("texture_registry")
     dpg.add_texture_registry(tag="texture_registry", show=IS_TEXTURE_REGISTRY_VISIBLE)
 
+    
+
 def show_in_explorer_callback():
     for image in Image.SELECTED_IMAGES:
         subprocess.Popen(r'explorer /select,"' + str(image.path) + '"')
+
+def open_in_defoult_callback(): 
+    for image in Image.SELECTED_IMAGES:
+        paintPath= {'linux':'xdg-open',
+                                  'win32':'explorer',
+                                  'darwin':'open'}[sys.platform]
+        subprocess.Popen('%s "%s"' % (paintPath, str(image.path)))        
 
 def open_folder_callback(sender, app_data, user_data):
     path = ask_for_directory()
