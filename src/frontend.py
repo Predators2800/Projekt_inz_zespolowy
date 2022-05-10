@@ -1,6 +1,6 @@
 import dearpygui.dearpygui as dpg
-from backend import get_file_list, load_images, delete_selected_files
-from frontend_components import popup, add_image_tags_list, add_thumbnail_panel
+from backend import get_file_list, load_images, delete_selected_files, analyze_images
+from frontend_components import popup, add_image_category_list, add_thumbnail_panel
 from tkinter import filedialog
 from tkinter import Tk
 from Image import Image
@@ -44,22 +44,23 @@ def interface_init():
                     with dpg.table_row(tag="toolbar_table_row"):
                         with dpg.group(tag="group_toolbar_1", horizontal=True):
                             dpg.add_button(label="Otwórz folder", height=BUTTON_HEIGHT, callback=open_folder_callback)
+                            dpg.add_button(label="Analizuj", height=BUTTON_HEIGHT, callback=analyze_callback)
                         with dpg.group(tag="group_toolbar_2", horizontal=True):
-                            dpg.add_button(label="Pokaż w Eksloratorze", height=BUTTON_HEIGHT, callback=show_in_explorer_callback)
+                            dpg.add_button(label="Pokaż w Eksloratorze", height=BUTTON_HEIGHT, callback=show_in_explorer_callback2)
                             dpg.add_button(label="Otwórz", height=BUTTON_HEIGHT)
-                            dpg.add_button(label="Kopiuj", height=BUTTON_HEIGHT)
+                            dpg.add_button(label="Kopiuj", height=BUTTON_HEIGHT, callback=copy_callback)
                             dpg.add_button(label="Kasuj", height=BUTTON_HEIGHT, callback=delete_selected_callback)
             with dpg.table_row(tag="workspace"):
                 with dpg.table(tag="workspace_table", no_host_extendY=True, resizable=True, borders_innerH=False, borders_innerV=True, header_row=True):
                     dpg.add_table_column(label="Miniatury", init_width_or_weight=5)
-                    dpg.add_table_column(label="Tagi", init_width_or_weight=1)
+                    dpg.add_table_column(label="Kategorie", init_width_or_weight=1)
                     with dpg.table_row(tag="workspace_table_row"):
                         dpg.add_child_window(tag="thumbnails_window")
-                        dpg.add_child_window(tag="tags_window", label="Tagi")
-                        add_image_tags_list("tags_window")
+                        dpg.add_child_window(tag="tags_window", label="Okno-kategorii")
+                        add_image_category_list("tags_window")
             with dpg.table_row(tag="status_panel"):
                 with dpg.table(tag="status_panel_table", borders_outerH=True, borders_outerV=True, header_row=False):
-                    dpg.add_table_column()
+                    dpg.add_table_column(tag="kolumna")
                     with dpg.table_row(tag="status_panel_table_row", height=STATUS_PANEL_HEIGHT):
                         dpg.add_progress_bar(label="progressbar", overlay="progress", tag="progress_bar")
 
@@ -88,7 +89,7 @@ def set_default_font() -> None:
     """
 
     with dpg.font_registry():
-        default_font = dpg.add_font("./resources/font/fira.ttf", FONT_SIZE)  # ładowanie czcionki z dysku
+        default_font = dpg.add_font("../resources/font/fira.ttf", FONT_SIZE)  # ładowanie czcionki z dysku
     dpg.bind_font(default_font)  # ustawia czcionkę jako default
     dpg.add_font_range(0x0100, 0x017D, parent=default_font)  # dodaje zakres polskich znaków
 
@@ -118,9 +119,24 @@ def clear_texture_registry():
     dpg.delete_item("texture_registry")
     dpg.add_texture_registry(tag="texture_registry", show=IS_TEXTURE_REGISTRY_VISIBLE)
 
+
 def show_in_explorer_callback():
     for image in Image.SELECTED_IMAGES:
         subprocess.Popen(r'explorer /select,"' + str(image.path) + '"')
+
+
+def show_in_explorer_callback2():
+    path = ""
+    select_path = "/select,"
+    for image in Image.SELECTED_IMAGES:
+        select_path + str(image.path)
+    subprocess.Popen(r'explorer' + select_path + '"')
+
+
+def copy_to_clipboard():
+    for image in Image.SELECTED_IMAGES:
+        subprocess.check_call(str(image.path))
+
 
 def open_folder_callback(sender, app_data, user_data):
     path = ask_for_directory()
@@ -138,3 +154,10 @@ def delete_selected_callback(sender, app_data, user_data):
     else:
         print("Nie ma czego usunac")
         pass    # We can add popup to tell user there is nothing to delete
+
+
+def analyze_callback():
+    analyze_images()
+
+def copy_callback(clip = False):
+    pass
