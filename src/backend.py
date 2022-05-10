@@ -6,6 +6,7 @@ from Image import Image
 from PIL import Image as pil_image
 import numpy as np
 from imageai.Classification import ImageClassification
+from frontend_components import refresh_image_category
 
 
 def image_to_dpg_image(image):
@@ -31,15 +32,21 @@ class Predictor:
     Predictor class used for recognizing images.
     """
     def __init__(self):
+        self.actual_path = str(pathlib.Path('.').resolve().parent)
+        model_path = os.path.join(self.actual_path, "resnet50_imagenet_tf.2.0.h5")
         self._prediction = ImageClassification()
         self._prediction.setModelTypeAsResNet50()
-        self._prediction.setModelPath("resnet50_imagenet_tf.2.0.h5")
+        self._prediction.setModelPath(model_path)
         self._prediction.loadModel()
 
     def recognize(self, image_data):
         predictions, probabilities = self._prediction.classifyImage(image_data, input_type='array')
         return predictions, probabilities
 
+
+    def recognise_path(self,file_path):
+        predictions, probabilities = self._prediction.classifyImage(file_path, result_count=1)
+        return predictions, probabilities
 
 def get_file_list(folder, extensions=[".jpg", ".jpeg", ".png", ".gif", ".bmp"]):
     """
@@ -56,13 +63,15 @@ def get_file_list(folder, extensions=[".jpg", ".jpeg", ".png", ".gif", ".bmp"]):
 
 def load_images(image_paths):
     counter = 1
+    ratio = 4
+    h=100
     if not dpg.get_value("progress_bar"):
         dpg.set_value("progress_bar", 0)
     start_time = time.time()
     for path in image_paths:
         img_width, img_height, channels, img_data = dpg.load_image(path.as_posix())
         texture = dpg.add_static_texture(img_width, img_height, img_data, parent="texture_registry")
-        Image.IMAGES.append(Image(path, img_data, img_width, img_height, texture_id=texture))
+        Image.IMAGES.append(Image(path, img_data, h*(img_width/ratio), h, texture_id=texture))
         dpg.set_value("progress_bar", counter / len(image_paths))
         dpg.configure_item("progress_bar", overlay="Loading: " + str(round(counter * 100 / len(image_paths), 1)) + "%")
         counter += 1
@@ -78,3 +87,23 @@ def delete_selected_files():
     for i in Image.SELECTED_IMAGES:
         delete_file(i)
     Image.SELECTED_IMAGES.clear()
+
+
+def analyze_images():
+    predictor = Predictor()
+    counter = 0
+    Image.CATEGORIES_TO_SHOW.clear()
+
+    for image in Image.IMAGES:
+        counter +=1
+        dpg.set_value("progress_bar", (counter + 1) / len(Image.IMAGES))
+        dpg.configure_item("progress_bar",
+                           overlay="Analyzing: " + str(round((counter + 1) * 100 / len(Image.IMAGES), 1)) + "%")
+        predictions, probabilities = predictor.recognise_path(image.path)
+        image.set_category(predictions.copy()) #nadanie tagu
+    dpg.configure_item("progress_bar", overlay="Analysing finished")
+    counter = 0
+    for image in Image.IMAGES:
+        counter+=1
+        print(counter,"category = ",image.category,"tags=",image.tags)
+    refresh_image_category()

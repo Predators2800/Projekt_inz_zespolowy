@@ -2,6 +2,7 @@ from contextlib import contextmanager
 import dearpygui.dearpygui as dpg
 import time
 from Image import Image
+from resources.categories.dict_key_tags import categories
 
 
 @contextmanager
@@ -44,19 +45,20 @@ def add_thumbnail_panel(parent):
         if not dpg.get_value("progress_bar"):
             dpg.set_value("progress_bar", 0.0)
 
-        while counter < len(Image.IMAGES):
-            columns_left = columns if counter <= len(Image.IMAGES)-columns else len(Image.IMAGES) % columns
+        while counter < len(Image.IMAGES_TO_SHOW):
+            columns_left = columns if counter <= len(Image.IMAGES_TO_SHOW)-columns else len(Image.IMAGES_TO_SHOW) % columns
             with dpg.table_row():
                 while columns_left > 0:
                     with dpg.group() as image_cell:
-                        Image.IMAGES[counter].show(parent=image_cell)
-                        dpg.set_value("progress_bar", (counter+1)/len(Image.IMAGES))
-                        dpg.configure_item("progress_bar", overlay="Loading: " + str(round((counter+1)*100/len(Image.IMAGES), 1)) + "%")
+                        Image.IMAGES_TO_SHOW[counter].show(parent=image_cell)
+                        dpg.set_value("progress_bar", (counter+1)/len(Image.IMAGES_TO_SHOW))
+                        dpg.configure_item("progress_bar", overlay="Loading: " + str(round((counter+1)*100/len(Image.IMAGES_TO_SHOW), 1)) + "%")
                         with dpg.group(horizontal=True) as bottom_group:
-                            dpg.add_checkbox(user_data=Image.IMAGES[counter], callback=select_image_callback)
-                            dpg.add_text(default_value=Image.IMAGES[counter].path.name)
+                            dpg.add_checkbox(user_data=Image.IMAGES_TO_SHOW[counter], callback=select_image_callback)
+                            dpg.add_text(default_value=Image.IMAGES_TO_SHOW[counter].path.name)
                             with dpg.tooltip(parent=bottom_group):
-                                dpg.add_text(default_value=Image.IMAGES[counter].path)
+                                dpg.add_text(default_value=Image.IMAGES_TO_SHOW[counter].path)
+                                dpg.add_text(default_value=Image.IMAGES_TO_SHOW[counter].tags)
                     columns_left -= 1
                     counter += 1
     start_time = time.time()
@@ -64,26 +66,32 @@ def add_thumbnail_panel(parent):
     print("czas wyświetlania miniatur", time.time()-start_time)
 
 
-def add_image_tags_list(parent):
-    tags = [
-        "niebo",
-        "trawa",
-        "plaza",
-        "śnieg",
-        "ludzie",
-        "zwierzęta",
-        "samochody",
-        "czerwony",
-        "czarny",
-        "red",
-        "green",
-        "blue",
-        "red",
-        "green",
-        "blue",
-        "red",
-        "green",
-        "blue"
-    ]
+def refresh_image_to_show():
+    Image.IMAGES_TO_SHOW.clear()
+    for img in Image.IMAGES:
+        for cat in img.category:
+            if Image.SELECTED_CATEGORIES.count(cat):
+                Image.IMAGES_TO_SHOW.append(img)
+    #print(len("wyswietlam obrazkow:",Image.IMAGES_TO_SHOW))
 
-    [dpg.add_checkbox(label=tag, parent=parent) for tag in tags]
+
+def tag_checkbox_callback(sender, widget_data, image):
+    Image.selected_tag(self=None, category=dpg.get_item_label(sender))
+    refresh_image_to_show()
+    add_thumbnail_panel(parent="thumbnails_window")
+
+
+def add_image_category_list(parent):
+    cats = categories
+    cats.sort()
+    cats.append('inne')
+
+    [dpg.add_checkbox(label=category, parent=parent,callback=tag_checkbox_callback) for category in cats]
+
+
+def refresh_image_category():
+    print(len(Image.CATEGORIES_TO_SHOW))
+    print(Image.CATEGORIES_TO_SHOW)
+    dpg.delete_item("tags_window")
+    dpg.add_child_window(tag="tags_window", label="Okno-kategorii",parent="workspace_table_row")
+    [dpg.add_checkbox(label=category, parent="tags_window", callback=tag_checkbox_callback) for category in Image.CATEGORIES_TO_SHOW]
