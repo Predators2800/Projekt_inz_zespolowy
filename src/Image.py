@@ -1,5 +1,5 @@
 import dearpygui.dearpygui as dpg
-from resources.categories.dict_key_tags import mapped_tags, categories, k_mapped_tags
+from dict_key_tags import mapped_tags, categories, k_mapped_tags
 
 
 class Image:

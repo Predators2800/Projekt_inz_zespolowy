@@ -2,7 +2,7 @@ from contextlib import contextmanager
 import dearpygui.dearpygui as dpg
 import time
 from Image import Image
-from resources.categories.dict_key_tags import categories
+from dict_key_tags import categories
 
 
 @contextmanager
