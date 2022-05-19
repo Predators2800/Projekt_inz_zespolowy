@@ -69,9 +69,12 @@ def load_images(image_paths):
         dpg.set_value("progress_bar", 0)
     start_time = time.time()
     for path in image_paths:
-        img_width, img_height, channels, img_data = dpg.load_image(path.as_posix())
-        texture = dpg.add_static_texture(img_width, img_height, img_data, parent="texture_registry")
-        Image.IMAGES.append(Image(path, img_data, h*(img_width/ratio), h, texture_id=texture))
+        pil_image = image_load(path)
+        width = pil_image.size[0]
+        height = pil_image.size[1]
+        image_data = image_to_dpg_image(pil_image)
+        texture = dpg.add_static_texture(width, height, image_data, parent="texture_registry")
+        Image.IMAGES.append(Image(path, pil_image, h*(width/ratio), h, texture_id=texture))
         dpg.set_value("progress_bar", counter / len(image_paths))
         dpg.configure_item("progress_bar", overlay="Loading: " + str(round(counter * 100 / len(image_paths), 1)) + "%")
         counter += 1
