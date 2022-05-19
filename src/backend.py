@@ -70,7 +70,6 @@ def load_images(image_paths):
     start_time = time.time()
     for path in image_paths:
         pil_image = image_load(path)
-        print(pil_image.size)
         width = pil_image.size[0]
         height = pil_image.size[1]
         image_data = image_to_dpg_image(pil_image)
