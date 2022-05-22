@@ -5,6 +5,7 @@ from tkinter import filedialog
 from tkinter import Tk
 from Image import Image
 import subprocess
+import sys
 
 WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 800
@@ -46,8 +47,9 @@ def interface_init():
                             dpg.add_button(label="Otwórz folder", height=BUTTON_HEIGHT, callback=open_folder_callback)
                             dpg.add_button(label="Analizuj", height=BUTTON_HEIGHT, callback=analyze_callback)
                         with dpg.group(tag="group_toolbar_2", horizontal=True):
-                            dpg.add_button(label="Pokaż w Eksloratorze", height=BUTTON_HEIGHT, callback=show_in_explorer_callback2)
-                            dpg.add_button(label="Otwórz", height=BUTTON_HEIGHT)
+                            dpg.add_button(label="Pokaż w Eksloratorze", height=BUTTON_HEIGHT, callback=show_in_explorer_callback)
+                            dpg.add_button(label="Otwórz", height=BUTTON_HEIGHT,callback=open_in_default_callback)
+                            dpg.add_button(label="Zaznacz wszystko", height=BUTTON_HEIGHT,callback=select_all_callback)
                             dpg.add_button(label="Kopiuj", height=BUTTON_HEIGHT, callback=copy_callback)
                             dpg.add_button(label="Kasuj", height=BUTTON_HEIGHT, callback=delete_selected_callback)
             with dpg.table_row(tag="workspace"):
@@ -145,6 +147,21 @@ def open_folder_callback(sender, app_data, user_data):
     Image.IMAGES.clear()
     load_images(image_paths)
     add_thumbnail_panel(parent="thumbnails_window")
+
+    
+def open_in_default_callback(): 
+    for image in Image.SELECTED_IMAGES:
+        paintPath= {'linux':'xdg-open',
+                                  'win32':'explorer',
+                                  'darwin':'open'}[sys.platform]
+        subprocess.Popen('%s "%s"' % (paintPath, str(image.path)))   
+
+
+def select_all_callback(): 
+    if Image.SELECTED_IMAGES:
+       Image.SELECTED_IMAGES.clear() 
+    for image in Image.IMAGES_TO_SHOW:
+        Image.SELECTED_IMAGES.append(image)
 
 
 def delete_selected_callback(sender, app_data, user_data):
