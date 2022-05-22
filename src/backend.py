@@ -7,6 +7,7 @@ from PIL import Image as pil_image
 import numpy as np
 from imageai.Classification import ImageClassification
 from frontend_components import refresh_image_category
+from db import *
 
 
 def image_to_dpg_image(image):
@@ -98,15 +99,39 @@ def analyze_images():
     Image.CATEGORIES_TO_SHOW.clear()
 
     for image in Image.IMAGES:
-        counter +=1
-        dpg.set_value("progress_bar", (counter + 1) / len(Image.IMAGES))
-        dpg.configure_item("progress_bar",
-                           overlay="Analyzing: " + str(round((counter + 1) * 100 / len(Image.IMAGES), 1)) + "%")
-        predictions, probabilities = predictor.recognise_path(image.path)
-        image.set_category(predictions.copy()) #nadanie tagu
+        db_record = db_get_record(str(image.path))
+        hash = get_hash(str(image.path))
+        hash_idx = 1
+        if db_record:
+            if db_record[1] == hash:
+                print("Selecting tags from DB")
+                tags_list = db_record[hash_idx].split(",")
+                image.tags = tags_list
+            else:
+                counter +=1
+                dpg.set_value("progress_bar", (counter + 1) / len(Image.IMAGES))
+                dpg.configure_item("progress_bar",
+                                overlay="Analyzing: " + str(round((counter + 1) * 100 / len(Image.IMAGES), 1)) + "%")
+                predictions, probabilities = predictor.recognise_path(image.path)
+                image.set_category(predictions.copy())
+                tags = ','.join(predictions)
+                print("Updating record")
+                db_update_record(str(image.path), hash, tags)
+        else:
+            counter +=1
+            dpg.set_value("progress_bar", (counter + 1) / len(Image.IMAGES))
+            dpg.configure_item("progress_bar",
+                            overlay="Analyzing: " + str(round((counter + 1) * 100 / len(Image.IMAGES), 1)) + "%")
+            predictions, probabilities = predictor.recognise_path(image.path)
+            image.set_category(predictions.copy())
+            tags = ','.join(predictions)
+            print("Inserting record")
+            db_insert_row(str(image.path), hash, tags)
+                #nadanie tagu
     dpg.configure_item("progress_bar", overlay="Analysing finished")
     counter = 0
     for image in Image.IMAGES:
         counter+=1
         print(counter,"category = ",image.category,"tags=",image.tags)
     refresh_image_category()
+
