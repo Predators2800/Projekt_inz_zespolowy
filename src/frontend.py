@@ -5,10 +5,12 @@ from tkinter import filedialog
 from tkinter import Tk
 from Image import Image
 import subprocess
+import shutil
+from subprocess import check_call
 import sys
 
-WINDOW_HEIGHT = 600
-WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 720
+WINDOW_WIDTH = 1280
 TOOLBAR_HEIGHT = 60
 STATUS_PANEL_HEIGHT = 30
 FONT_SIZE = 18
@@ -52,14 +54,17 @@ def interface_init():
                             dpg.add_button(label="Zaznacz wszystko", height=BUTTON_HEIGHT,callback=select_all_callback)
                             dpg.add_button(label="Kopiuj", height=BUTTON_HEIGHT, callback=copy_callback)
                             dpg.add_button(label="Kasuj", height=BUTTON_HEIGHT, callback=delete_selected_callback)
+                            dpg.add_checkbox(tag="przyklad",label="test")
             with dpg.table_row(tag="workspace"):
                 with dpg.table(tag="workspace_table", no_host_extendY=True, resizable=True, borders_innerH=False, borders_innerV=True, header_row=True):
                     dpg.add_table_column(label="Miniatury", init_width_or_weight=5)
                     dpg.add_table_column(label="Kategorie", init_width_or_weight=1)
                     with dpg.table_row(tag="workspace_table_row"):
-                        dpg.add_child_window(tag="thumbnails_window")
+                        dpg.add_child_window(tag="thumbnails_window",)
                         dpg.add_child_window(tag="tags_window", label="Okno-kategorii")
                         add_image_category_list("tags_window")
+
+
             with dpg.table_row(tag="status_panel"):
                 with dpg.table(tag="status_panel_table", borders_outerH=True, borders_outerV=True, header_row=False):
                     dpg.add_table_column(tag="kolumna")
@@ -139,12 +144,18 @@ def copy_to_clipboard():
     for image in Image.SELECTED_IMAGES:
         subprocess.check_call(str(image.path))
 
-
+def clear_images():
+    if Image.IMAGES:
+        Image.IMAGES.clear()
+        Image.IMAGES_TO_SHOW.clear()
+        Image.SELECTED_IMAGES.clear()
+        Image.SELECTED_CATEGORIES.clear()
+        Image.CATEGORIES_TO_SHOW.clear()
 def open_folder_callback(sender, app_data, user_data):
     path = ask_for_directory()
     image_paths = get_file_list(path)
     clear_texture_registry()
-    Image.IMAGES.clear()
+    clear_images()
     load_images(image_paths)
     add_thumbnail_panel(parent="thumbnails_window")
 
@@ -157,7 +168,9 @@ def open_in_default_callback():
         subprocess.Popen('%s "%s"' % (paintPath, str(image.path)))   
 
 
-def select_all_callback(): 
+def select_all_callback():
+    dpg.set_value("przyklad",True)
+
     if Image.SELECTED_IMAGES:
        Image.SELECTED_IMAGES.clear() 
     for image in Image.IMAGES_TO_SHOW:
@@ -177,4 +190,6 @@ def analyze_callback():
     analyze_images()
 
 def copy_callback(clip = False):
-    pass
+    path = ask_for_directory()
+    for i in Image.SELECTED_IMAGES:
+        shutil.copy2(str(i.path),dst=str(path))

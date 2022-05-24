@@ -8,6 +8,7 @@ import numpy as np
 from imageai.Classification import ImageClassification
 from frontend_components import refresh_image_category
 from db import *
+IS_TEXTURE_REGISTRY_VISIBLE = False
 
 
 def image_to_dpg_image(image):
@@ -70,12 +71,9 @@ def load_images(image_paths):
         dpg.set_value("progress_bar", 0)
     start_time = time.time()
     for path in image_paths:
-        pil_image = image_load(path)
-        width = pil_image.size[0]
-        height = pil_image.size[1]
-        image_data = image_to_dpg_image(pil_image)
-        texture = dpg.add_static_texture(width, height, image_data, parent="texture_registry")
-        Image.IMAGES.append(Image(path, pil_image, h*(width/ratio), h, texture_id=texture))
+        img_width, img_height, channels, img_data = dpg.load_image(path.as_posix())
+        texture = dpg.add_static_texture(img_width, img_height, img_data, parent="texture_registry")
+        Image.IMAGES.append(Image(path, pil_image, img_width, img_height, texture_id=texture))
         dpg.set_value("progress_bar", counter / len(image_paths))
         dpg.configure_item("progress_bar", overlay="Loading: " + str(round(counter * 100 / len(image_paths), 1)) + "%")
         counter += 1
@@ -94,6 +92,7 @@ def delete_selected_files():
 
 
 def analyze_images():
+    start_time = time.time()
     predictor = Predictor()
     counter = 0
     Image.CATEGORIES_TO_SHOW.clear()
@@ -101,27 +100,25 @@ def analyze_images():
     for image in Image.IMAGES:
         db_record = db_get_record(str(image.path))
         hash = get_hash(str(image.path))
-        hash_idx = 1
+        hash_idx = 2
+        dpg.set_value("progress_bar", (counter + 1) / len(Image.IMAGES))
+        dpg.configure_item("progress_bar",
+                           overlay="Analyzing: " + str(round((counter + 1) * 100 / len(Image.IMAGES), 1)) + "%")
+        counter += 1
         if db_record:
             if db_record[1] == hash:
                 print("Selecting tags from DB")
                 tags_list = db_record[hash_idx].split(",")
+                print("tags_list",tags_list)
                 image.tags = tags_list
+                image.set_category(image.tags)
             else:
-                counter +=1
-                dpg.set_value("progress_bar", (counter + 1) / len(Image.IMAGES))
-                dpg.configure_item("progress_bar",
-                                overlay="Analyzing: " + str(round((counter + 1) * 100 / len(Image.IMAGES), 1)) + "%")
                 predictions, probabilities = predictor.recognise_path(image.path)
                 image.set_category(predictions.copy())
                 tags = ','.join(predictions)
                 print("Updating record")
                 db_update_record(str(image.path), hash, tags)
-        else:
-            counter +=1
-            dpg.set_value("progress_bar", (counter + 1) / len(Image.IMAGES))
-            dpg.configure_item("progress_bar",
-                            overlay="Analyzing: " + str(round((counter + 1) * 100 / len(Image.IMAGES), 1)) + "%")
+        else:#pierwsze ladowanie
             predictions, probabilities = predictor.recognise_path(image.path)
             image.set_category(predictions.copy())
             tags = ','.join(predictions)
@@ -134,4 +131,5 @@ def analyze_images():
         counter+=1
         print(counter,"category = ",image.category,"tags=",image.tags)
     refresh_image_category()
+    print("czas analizowania", time.time() - start_time)
 
