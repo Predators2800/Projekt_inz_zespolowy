@@ -4,7 +4,7 @@ from dict_key_tags import mapped_tags, k_mapped_tags
 
 class Image:
     IMAGES = []
-    IMAGES_TO_SHOW = []
+    IMAGES_TO_SHOW = set()
     SELECTED_IMAGES = []
     SELECTED_CATEGORIES = []
     CATEGORIES_TO_SHOW = set()
@@ -34,7 +34,8 @@ class Image:
                 is_selected: {self.is_selected}"
 
     def show(self, parent):
-        self.dpg_image = dpg.add_image(self.texture_id, parent=parent)
+        height_to_show_image=150
+        self.dpg_image = dpg.add_image(self.texture_id, parent=parent,height=height_to_show_image,width=int(height_to_show_image*self.width/self.height))
         self.parent = parent
         return self.dpg_image
 
@@ -54,7 +55,7 @@ class Image:
         cat_set = []
         tag_set = []
         for t in tags:
-            print("tag", t)
+            print("ustawiam kategorie dla tagu", t)
             if k_mapped_tags.count(t):
                 if isinstance(mapped_tags[t],list):
                     for i in mapped_tags[t]:

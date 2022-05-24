@@ -32,12 +32,14 @@ def add_thumbnail_panel(parent):
     Create thumbnail table with images:
     -
     """
+    cell_height = 200
+    start_time = time.time()
     columns = 4
 
     if dpg.get_alias_id("thumbnail_table"):
         dpg.delete_item("thumbnail_table")
 
-    with dpg.table(tag="thumbnail_table", parent=parent, header_row=False, borders_innerH=True, borders_innerV=True):
+    with dpg.table(tag="thumbnail_table", parent=parent, header_row=False, borders_innerH=False, borders_innerV=False):
         for i in range(columns):
             dpg.add_table_column()
         counter = 0
@@ -47,21 +49,23 @@ def add_thumbnail_panel(parent):
 
         while counter < len(Image.IMAGES_TO_SHOW):
             columns_left = columns if counter <= len(Image.IMAGES_TO_SHOW)-columns else len(Image.IMAGES_TO_SHOW) % columns
-            with dpg.table_row():
+            with dpg.table_row(height=cell_height):
                 while columns_left > 0:
                     with dpg.group() as image_cell:
-                        Image.IMAGES_TO_SHOW[counter].show(parent=image_cell)
+                        list(Image.IMAGES_TO_SHOW)[counter].show(parent=image_cell)
                         dpg.set_value("progress_bar", (counter+1)/len(Image.IMAGES_TO_SHOW))
                         dpg.configure_item("progress_bar", overlay="Loading: " + str(round((counter+1)*100/len(Image.IMAGES_TO_SHOW), 1)) + "%")
                         with dpg.group(horizontal=True) as bottom_group:
-                            dpg.add_checkbox(user_data=Image.IMAGES_TO_SHOW[counter], callback=select_image_callback)
-                            dpg.add_text(default_value=Image.IMAGES_TO_SHOW[counter].path.name)
+                            dpg.add_checkbox(user_data=list(Image.IMAGES_TO_SHOW)[counter], callback=select_image_callback)
+                            dpg.add_text(default_value=list(Image.IMAGES_TO_SHOW)[counter].path.name)
                             with dpg.tooltip(parent=bottom_group):
-                                dpg.add_text(default_value=Image.IMAGES_TO_SHOW[counter].path)
-                                dpg.add_text(default_value=Image.IMAGES_TO_SHOW[counter].tags)
+                                dpg.add_text(default_value=list(Image.IMAGES_TO_SHOW)[counter].path)
+                                dpg.add_text(default_value=list(Image.IMAGES_TO_SHOW)[counter].tags)
                     columns_left -= 1
                     counter += 1
-    start_time = time.time()
+        with dpg.table_row(label="098098098080989",height=30):
+            pass
+
     dpg.configure_item("progress_bar", overlay="Loading finished")
     print("czas wyświetlania miniatur", time.time()-start_time)
 
@@ -71,7 +75,7 @@ def refresh_image_to_show():
     for img in Image.IMAGES:
         for cat in img.category:
             if Image.SELECTED_CATEGORIES.count(cat):
-                Image.IMAGES_TO_SHOW.append(img)
+                Image.IMAGES_TO_SHOW.add(img)
     #print(len("wyswietlam obrazkow:",Image.IMAGES_TO_SHOW))
 
 
@@ -90,7 +94,7 @@ def add_image_category_list(parent):
 
 
 def refresh_image_category():
-    print(len(Image.CATEGORIES_TO_SHOW))
+    print("znaleziono ",len(Image.CATEGORIES_TO_SHOW),"kategorii")
     print(Image.CATEGORIES_TO_SHOW)
     dpg.delete_item("tags_window")
     dpg.add_child_window(tag="tags_window", label="Okno-kategorii",parent="workspace_table_row")
