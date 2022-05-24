@@ -112,7 +112,7 @@ def analyze_images():
                 dpg.set_value("progress_bar", (counter + 1) / len(Image.IMAGES))
                 dpg.configure_item("progress_bar",
                                 overlay="Analyzing: " + str(round((counter + 1) * 100 / len(Image.IMAGES), 1)) + "%")
-                predictions, probabilities = predictor.recognise_path(image.path)
+                predictions, probabilities = predictor.recognise_path(image.image_data)
                 image.set_category(predictions.copy())
                 tags = ','.join(predictions)
                 print("Updating record")
