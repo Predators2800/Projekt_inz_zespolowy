@@ -1,4 +1,7 @@
+"""
+This is raw dictionary. Here we can add new categories and tags
 
+"""
 
 images_categories = {
           'dzikie zwierzęta':['cock','hen','ostrich','hare','wild_boar','ox','ram','gazelle','Arabian_camel','bison','bighorn','ibex','hartebeest','impala','llama','weasel',
@@ -75,7 +78,7 @@ images_categories = {
           'sport':['bobsled','football_helmet','puck','punching_bag','barbell','racer','balance_beam','soccer_ball','baseball','basketball','rugby_ball','running_shoe','tennis_ball','punching_bag',
           'puck','racer','soccer_ball','golf_ball','bow','fly','cricket','pool_table','ping-pong_ball','croquet_ball'],
           'narzędzia':['hammerhead','screwdriver','power_drill','hammer'],
-          'wies':['barn'],
+          'wieś':['barn'],
           'impreza':['beer_bottle','beer_glass','barrel']
 }
 
