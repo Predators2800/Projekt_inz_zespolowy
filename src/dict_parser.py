@@ -24,7 +24,7 @@ def parser(dict_to_swap):
                             val_to_add = [k]
                             new_val.extend(val_to_add)
                             swapped_dict.update({item:new_val})
-                        print(item)
+                        #print(item)
                     else:
                         swapped_dict.update({item: k})
             else:
@@ -34,9 +34,27 @@ def parser(dict_to_swap):
         k_list.append(k)
         v_list.append(v)
 
-    print(swapped_dict)
-    print(len(swapped_dict.items()))
-    print(swapped_dict.keys())
+    # print("paste to : mapped_tags",swapped_dict)
+    # print(len(swapped_dict.items()))
+    # print("paste to categories",swapped_dict.values())
+    # print("paste to: k_mapped_tags",swapped_dict.keys())
 
 
-parser(images_categories)
+    s1 = str('"""'+time.strftime("%a, %d %b %Y %H:%M:%S ", time.localtime())+'"""'+"\n\n")
+    s2 = str("mapped_tags = "+str(swapped_dict)+"\n")
+    s3 = str("categories = " + str(dict_to_swap.keys())[10:-1]+"\n")
+    s4 = str("k_mapped_tags = " + str(swapped_dict.keys())[10:-1]+"\n")
+    s5 = str('\n\n'+'"""' +"File generated after parser function in dict_parser.py "+ '"""' + "\n")
+
+    file = open("dict_key_tags.py", "w",encoding='UTF-8')
+    file.write(s1)
+    file.write(s2)
+    file.write(s3)
+    file.write(s4)
+    file.write(s5)
+    file.close()
+
+def parser_run():
+    parser(images_categories)
+
+parser_run()
